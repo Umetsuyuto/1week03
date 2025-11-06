@@ -4,6 +4,8 @@ public class BallController : MonoBehaviour
 {
     [SerializeField] private float speed = 8f;          // ボールの速度
     [SerializeField] private float reflectCooldown = 0.05f; // 反射クールタイム
+    [SerializeField] private AudioSource audioSource;   // 反射SE
+
     private Rigidbody2D rb;
     private bool isLaunched = false;
     private float cooldownTimer = 0f;
@@ -31,7 +33,7 @@ public class BallController : MonoBehaviour
     private void Launch()
     {
         isLaunched = true;
-        Vector2 dir = new Vector2(Random.Range(-0.6f, 0.6f), 1).normalized;//ちょっとランダム
+        Vector2 dir = new Vector2(Random.Range(-0.6f, 0.6f), 1).normalized; // ちょっとランダム
         rb.linearVelocity = dir * speed;
     }
 
@@ -46,6 +48,12 @@ public class BallController : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (cooldownTimer > 0f) return; // クールタイム中は無視
+
+        // 🔊 Paddleに当たったら音再生
+        if (collision.gameObject.CompareTag("Paddle"))
+        {
+            audioSource.Play();
+        }
 
         Vector2 normal = collision.contacts[0].normal;
         Vector2 reflectDir = Vector2.Reflect(rb.linearVelocity.normalized, normal);
